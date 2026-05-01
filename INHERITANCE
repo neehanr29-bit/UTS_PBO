@@ -1,0 +1,58 @@
+# ============================================================
+# SOAL 2a — INHERITANCE
+# Sistem: OTWin (Platform Booking Wisata Nusantara)
+# ============================================================
+
+# ── CLASS INDUK (Parent Class) ──
+class Akun:
+    # Konstruktor class induk: mendefinisikan atribut dasar semua akun
+    def __init__(self, username, password, nama, email):
+        self.username = username      # nama pengguna untuk login
+        self.password = password      # kata sandi akun
+        self.nama     = nama          # nama lengkap pemilik akun
+        self.email    = email         # alamat email akun
+
+    # Method umum yang bisa digunakan oleh semua turunan
+    def info(self):
+        return f"Akun: {self.username} | Nama: {self.nama} | Email: {self.email}"
+
+
+# ── CLASS ANAK 1: User (mewarisi Akun) ──
+class User(Akun):                                   # User mewarisi semua atribut Akun
+    def __init__(self, username, password, nama, email, tanggal_lahir):
+        super().__init__(username, password, nama, email)  # panggil konstruktor induk
+        self.tanggal_lahir    = tanggal_lahir        # atribut tambahan khusus User
+        self.riwayat_booking  = []                   # daftar booking milik user ini
+
+    # Method khusus User: melakukan booking wisata
+    def buat_booking(self, destinasi):
+        self.riwayat_booking.append(destinasi)
+        return f"✅ {self.nama} berhasil booking ke {destinasi}!"
+
+
+# ── CLASS ANAK 2: Admin (mewarisi Akun) ──
+class Admin(Akun):                                  # Admin mewarisi semua atribut Akun
+    def __init__(self, username, password, nama, email, is_master=False):
+        super().__init__(username, password, nama, email)  # panggil konstruktor induk
+        self.is_master = is_master                   # atribut tambahan khusus Admin
+
+    # Method khusus Admin: mengkonfirmasi booking
+    def konfirmasi_booking(self, booking_id):
+        return f"⚙️ Admin {self.nama} mengkonfirmasi booking #{booking_id}"
+
+
+# ── PENGUJIAN INHERITANCE ──
+user1  = User('budi99', 'pass123', 'Budi Santoso', 'budi@email.com', '1999-05-10')
+admin1 = Admin('admin01', 'adm!n', 'Rina Admin', 'rina@otwin.id', is_master=True)
+
+# User dan Admin bisa menggunakan method info() dari class induk Akun
+print(user1.info())              # method warisan dari Akun
+print(admin1.info())             # method warisan dari Akun
+
+# Masing-masing punya method sendiri
+print(user1.buat_booking('Bali'))                # method khusus User
+print(admin1.konfirmasi_booking(42))             # method khusus Admin
+
+# Membuktikan pewarisan
+print(f"\nApakah user1 adalah turunan Akun? {isinstance(user1, Akun)}")   # True
+print(f"Apakah admin1 adalah turunan Akun? {isinstance(admin1, Akun)}")  # True
