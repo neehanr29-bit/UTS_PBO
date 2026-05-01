@@ -1,0 +1,78 @@
+import hashlib  # untuk simulasi hashing password (seperti password_hash di PHP)
+
+class AkunOTWin:
+    # Konstruktor: data publik dan data PRIVAT
+    def __init__(self, username, password, nama, email, tanggal_lahir):
+        self.username       = username          # PUBLIK  — boleh diakses langsung
+        self.nama           = nama              # PUBLIK  — boleh diakses langsung
+        self.__password     = self.__hash(password)   # PRIVAT — disembunyikan & di-hash
+        self.__email        = email             # PRIVAT — informasi sensitif
+        self.__tanggal_lahir = tanggal_lahir    # PRIVAT — informasi sensitif
+
+    # ── Method PRIVAT: hashing password (tidak bisa dipanggil dari luar) ──
+    def __hash(self, password):
+        return hashlib.sha256(password.encode()).hexdigest()  # simulasi enkripsi password
+
+    # ── GETTER: mengambil nilai email (terproteksi, hanya bisa dibaca) ──
+    def get_email(self):
+        return self.__email                     # mengambil nilai __email yang tersembunyi
+
+    # ── GETTER: mengambil tanggal lahir ──
+    def get_tanggal_lahir(self):
+        return self.__tanggal_lahir
+
+    # ── SETTER: mengubah email dengan validasi ──
+    def set_email(self, email_baru):
+        if '@' in email_baru and '.' in email_baru:    # validasi format email
+            self.__email = email_baru
+            return f"✅ Email berhasil diperbarui ke: {email_baru}"
+        else:
+            return "❌ Format email tidak valid!"
+
+    # ── SETTER: ganti password dengan validasi panjang ──
+    def ganti_password(self, password_lama, password_baru):
+        if self.__hash(password_lama) == self.__password:  # verifikasi password lama
+            if len(password_baru) >= 6:                    # validasi panjang minimum
+                self.__password = self.__hash(password_baru)
+                return "✅ Password berhasil diperbarui!"
+            else:
+                return "❌ Password baru minimal 6 karakter!"
+        else:
+            return "❌ Password lama salah!"
+
+    # ── Method LOGIN: verifikasi kredensial ──
+    def login(self, input_password):
+        if self.__hash(input_password) == self.__password:  # bandingkan hash
+            return f"✅ Login berhasil! Selamat datang, {self.nama}!"
+        else:
+            return "❌ Username atau password salah!"
+
+
+# ── PENGUJIAN ENKAPSULASI ──
+akun = AkunOTWin('budi99', 'rahasia123', 'Budi Santoso', 'budi@email.com', '1999-05-10')
+
+# Atribut PUBLIK bisa diakses langsung
+print(f"Username : {akun.username}")
+print(f"Nama     : {akun.nama}")
+
+# Atribut PRIVAT TIDAK bisa diakses langsung
+try:
+    print(akun.__password)      # ini akan error — password terlindungi
+except AttributeError as e:
+    print(f"❌ Akses ditolak: {e}")
+
+# Akses data sensitif harus lewat GETTER
+print(f"\nEmail (via getter)         : {akun.get_email()}")
+print(f"Tanggal Lahir (via getter) : {akun.get_tanggal_lahir()}")
+
+# Update data menggunakan SETTER
+print(f"\n{akun.set_email('budi.baru@gmail.com')}")
+print(f"Email setelah update       : {akun.get_email()}")
+
+# Ganti password menggunakan method ganti_password
+print(f"\n{akun.ganti_password('rahasia123', 'newpass456')}")
+print(f"{akun.ganti_password('salah', 'newpass456')}")
+
+# Uji login
+print(f"\n{akun.login('newpass456')}")
+print(f"{akun.login('rahasia123')}")
