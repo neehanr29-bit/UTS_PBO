@@ -1,0 +1,55 @@
+# ── CLASS INDUK: Booking (blueprint umum) ──
+class Booking:
+    # Atribut dasar setiap pemesanan
+    def __init__(self, nama_pemesan, destinasi, jumlah_orang, durasi, harga_per_orang):
+        self.nama_pemesan    = nama_pemesan     # nama orang yang memesan
+        self.destinasi       = destinasi        # tujuan wisata
+        self.jumlah_orang    = jumlah_orang     # berapa orang yang ikut
+        self.durasi          = durasi           # lama perjalanan (hari)
+        self.harga_per_orang = harga_per_orang  # tarif per orang per hari (Rp)
+
+    # Method umum — akan di-override oleh masing-masing tipe booking
+    def hitung_total(self):
+        return self.jumlah_orang * self.durasi * self.harga_per_orang
+
+    # Method untuk menampilkan ringkasan booking
+    def tampilkan(self):
+        total = self.hitung_total()             # memanggil versi yang sesuai (polimorfisme)
+        print(f"Pemesan    : {self.nama_pemesan}")
+        print(f"Destinasi  : {self.destinasi}")
+        print(f"Durasi     : {self.durasi} hari | {self.jumlah_orang} orang")
+        print(f"Total Bayar: Rp {total:,.0f}")
+        print("-" * 40)
+
+
+# ── CLASS ANAK 1: BookingRegular (tanpa diskon) ──
+class BookingRegular(Booking):                  # mewarisi Booking
+    # Override hitung_total: harga normal tanpa diskon
+    def hitung_total(self):
+        total = self.jumlah_orang * self.durasi * self.harga_per_orang
+        print(f"[REGULAR] Tidak ada diskon")
+        return total
+
+
+# ── CLASS ANAK 2: BookingGroup (dengan diskon 20% untuk grup 5+ orang) ──
+class BookingGroup(Booking):                    # mewarisi Booking
+    # Override hitung_total: harga dengan diskon grup
+    def hitung_total(self):
+        total_normal  = self.jumlah_orang * self.durasi * self.harga_per_orang
+        diskon        = 0.20 if self.jumlah_orang >= 5 else 0.10  # diskon 20% jika 5+ orang
+        total_diskon  = total_normal * (1 - diskon)
+        print(f"[GROUP] Diskon {int(diskon*100)}% diterapkan | Hemat Rp {total_normal - total_diskon:,.0f}")
+        return total_diskon
+
+
+# ── PENGUJIAN POLIMORFISME ──
+# Dua object dari tipe berbeda disimpan dalam satu list
+daftar_booking = [
+    BookingRegular('Budi Santoso', '🌴 Bali',        2, 3, 500_000),
+    BookingGroup  ('Rina & Teman', '🏔️ Bromo',       6, 2, 450_000),
+]
+
+# Loop yang sama memanggil hitung_total() pada semua tipe — inilah POLIMORFISME
+print("===== RINGKASAN BOOKING OTWIN =====")
+for b in daftar_booking:
+    b.tampilkan()                              # method yang sama, hasil berbeda
